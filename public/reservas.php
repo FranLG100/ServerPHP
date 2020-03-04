@@ -17,7 +17,7 @@ header('Access-Control-Allow-Origin: *');
 		}
 //GET ALL
 $app->get('/reservas', function(Request $request, Response $response){
-    $sql = "SELECT * FROM RESERVAS";
+    $sql = "SELECT * FROM RESERVAS ORDER BY ID DESC";
     try{
       $db = new db();
       $db = $db->conectDB();
@@ -59,7 +59,7 @@ $app->get('/festivos', function(Request $request, Response $response){
 //GET ALL
 $app->get('/reservasall', function(Request $request, Response $response){
     $sql = 'SELECT R.ID AS "ID", U.ID AS "ID_USUARIO", U.DNI AS "DNI", CONCAT(U.NOMBRE," ",U.P_APELLIDO," ",U.S_APELLIDO) AS "NOMBRE", E.ID AS "ID_ESPACIO", E.NOMBRE AS "ESPACIO", R.FECHA AS "FECHA", R.HORA AS "HORA"  
-    FROM USUARIOS U JOIN RESERVAS R ON U.ID=R.USUARIO JOIN ESPACIOS E ON E.ID=R.ESPACIO';
+    FROM USUARIOS U JOIN RESERVAS R ON U.ID=R.USUARIO JOIN ESPACIOS E ON E.ID=R.ESPACIO ORDER BY ID DESC';
     try{
       $db = new db();
       $db = $db->conectDB();

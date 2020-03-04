@@ -81,7 +81,7 @@ $app->post('/horarios/post', function(Request $request, Response $response){
     $horamax = $request->getParam('horamax');
  
   $sql = "INSERT INTO HORARIOS (ESPACIO, DIA, HORA, DISPONIBLE) VALUES 
-          (:espacio, :dia, :hora, 1)";
+          (:espacio, :dia, :hora, 1) ON DUPLICATE KEY UPDATE DISPONIBLE=1;";
 
   try{
     $db = new db();
@@ -136,6 +136,49 @@ for($i=0;$i<count($dias);$i++){
     echo '{"error" : {"text":'.$e->getMessage().'}';
   }
 	
+});
+
+$app->post('/horarios/delete', function(Request $request, Response $response){
+    $espacio = $request->getParam('espacio');
+    $dia = $request->getParam('dia');
+  
+  $sql = "DELETE FROM HORARIOS WHERE ESPACIO=:espacio AND DIA=:dia";
+  try{
+    $db = new db();
+    $db = $db->conectDB();
+    $resultado = $db->prepare($sql);
+    $resultado->bindParam(':espacio', $espacio);
+    $resultado->bindParam(':dia', $dia);
+    $resultado->execute();
+    echo json_encode("Nuevo espacio guardado.");  
+    $resultado = null;
+    $db = null;
+  }catch(PDOException $e){
+    echo '{"error" : {"text":'.$e->getMessage().'}';
+  }
+});
+
+
+$app->post('/horarios/habilitar', function(Request $request, Response $response){
+    $espacio = $request->getParam('espacio');
+    $dia = $request->getParam('dia');
+	$hora = $request->getParam('hora');
+  
+  $sql = "UPDATE HORARIOS SET DISPONIBLE=1 WHERE ESPACIO=:espacio AND DIA=:dia AND HORA=:hora ";
+  try{
+    $db = new db();
+    $db = $db->conectDB();
+    $resultado = $db->prepare($sql);
+    $resultado->bindParam(':espacio', $espacio);
+    $resultado->bindParam(':dia', $dia);
+	$resultado->bindParam(':hora', $hora);
+    $resultado->execute();
+    echo json_encode("Espacio habilitado.");  
+    $resultado = null;
+    $db = null;
+  }catch(PDOException $e){
+    echo '{"error" : {"text":'.$e->getMessage().'}';
+  }
 });
 
 $app->run();

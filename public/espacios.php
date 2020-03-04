@@ -17,7 +17,7 @@ header('Access-Control-Allow-Origin: *');
 		}
 //GET ALL
 $app->get('/espacios', function(Request $request, Response $response){
-    $sql = "SELECT * FROM ESPACIOS";
+    $sql = "SELECT * FROM ESPACIOS WHERE ACTIVO=1";
     try{
       $db = new db();
       $db = $db->conectDB();
@@ -144,7 +144,7 @@ $app->post('/espacios', function(Request $request, Response $response){
 	$centro = $request->getParam('centro');
   
   $sql = "INSERT INTO ESPACIOS (NOMBRE, PRECIO, RECARGO, TIPO, CENTRO, ACTIVO) VALUES 
-          (:nombre, :precio, :tipo, :centro, 1)";
+          (:nombre, :precio,:recargo, :tipo, :centro, 1)";
   try{
     $db = new db();
     $db = $db->conectDB();
@@ -168,17 +168,17 @@ $app->put('/espacios/modificar/{id}', function(Request $request, Response $respo
    $id_espacio = $request->getAttribute('id');
    $nombre = $request->getParam('nombre');
    $precio = $request->getParam('precio');
-	$recargo = $request->getParam('recargo');
+	//$recargo = $request->getParam('recargo');
    $tipo = $request->getParam('tipo');
-	$centro = $request->getParam('centro');
-	$activo = $request->getParam('activo'); 
+	//$centro = $request->getParam('centro');
+	//$activo = $request->getParam('activo'); 
   
   $sql = "UPDATE ESPACIOS SET
 	  NOMBRE = :nombre,
           PRECIO = :precio,
           TIPO = :tipo,
-		  CENTRO = :centro,
-		  ACTIVO = :activo
+		  CENTRO = 1,
+		  ACTIVO = 1
         WHERE id = $id_espacio";
      
   try{
@@ -187,10 +187,29 @@ $app->put('/espacios/modificar/{id}', function(Request $request, Response $respo
     $resultado = $db->prepare($sql);
     $resultado->bindParam(':nombre', $nombre);
     $resultado->bindParam(':precio', $precio);
-	  $resultado->bindParam(':recargo', $recargo);
+	  //$resultado->bindParam(':recargo', $recargo);
     $resultado->bindParam(':tipo', $tipo);
-	  $resultado->bindParam(':activo', $activo);
-	  $resultado->bindParam(':centro', $centro);
+	  //$resultado->bindParam(':activo', $activo);
+	  //$resultado->bindParam(':centro', $centro);
+    $resultado->execute();
+    echo json_encode("Espacio modificado.");  
+    $resultado = null;
+    $db = null;
+  }catch(PDOException $e){
+    echo '{"error" : {"text":'.$e->getMessage().'}';
+  }
+}); 
+
+// PUT Modificar usuario
+$app->put('/espacios/activar/{id}', function(Request $request, Response $response){
+   $id_espacio = $request->getAttribute('id'); 
+  
+  $sql = "UPDATE ESPACIOS SET ACTIVO = 1 WHERE id = $id_espacio";
+     
+  try{
+    $db = new db();
+    $db = $db->conectDB();
+    $resultado = $db->prepare($sql);
     $resultado->execute();
     echo json_encode("Espacio modificado.");  
     $resultado = null;
@@ -202,7 +221,7 @@ $app->put('/espacios/modificar/{id}', function(Request $request, Response $respo
 // DELETE borar cliente 
 $app->delete('/espacios/delete/{id}', function(Request $request, Response $response){
    $id_espacio = $request->getAttribute('id');
-   $sql = "DELETE FROM ESPACIOS WHERE ID = $id_espacio";
+   $sql = "UPDATE ESPACIOS SET ACTIVO=0 WHERE ID = $id_espacio";
      
   try{
     $db = new db();

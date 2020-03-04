@@ -215,9 +215,9 @@ $app->post('/usuarios', function(Request $request, Response $response){
 	
 	//$enviador->isHTML(true);
 	$enviador->setFrom("fralg100@gmail.com","Francisco Lorente");
-	$enviador->addAddress("fralg100@gmail.com","Fran");
+	$enviador->addAddress($email, $papellido);
 	$enviador->Subject= "Mail de pruebas";
-	$enviador->Body="Esto es todo relleno";
+	$enviador->Body="Se ha registrado con exito en nuestra pagina de reservas.";
 	
 	if (!$enviador->send()) {
     	echo 'Mailer Error: '. $enviador->ErrorInfo;
@@ -299,9 +299,12 @@ $app->put('/usuarios/modificar/{id}', function(Request $request, Response $respo
    $email = $request->getParam('email');
    $direccion = $request->getParam('direccion');
    $pass = $request->getParam('pass');
-	$centro = $request->getParam('centro');
-	$activo = $request->getParam('activo'); 
+	//$centro = $request->getParam('centro');
+	$activo = $request->getParam('activo');
+	$admin = $request->getParam('admin'); 
   
+	$pass_hash=password_hash($pass, PASSWORD_DEFAULT);
+	
   $sql = "UPDATE USUARIOS SET
           DNI =:dni,
 		  NOMBRE = :nombre,
@@ -312,7 +315,7 @@ $app->put('/usuarios/modificar/{id}', function(Request $request, Response $respo
           DIRECCION = :direccion,
           PASS = :pass,
 		  ADMIN = :admin,
-		  CENTRO = :centro,
+		  CENTRO = 1,
 		  ACTIVO = :activo
         WHERE id = $id_cliente";
      
@@ -327,9 +330,9 @@ $app->put('/usuarios/modificar/{id}', function(Request $request, Response $respo
     $resultado->bindParam(':telefono', $telefono);
     $resultado->bindParam(':email', $email);
     $resultado->bindParam(':direccion', $direccion);
-    $resultado->bindParam(':pass', $pass);
-	  $resultado->bindParam(':admin', $pass);
-	  $resultado->bindParam(':centro', $pass);
+    $resultado->bindParam(':pass', $pass_hash);
+	  $resultado->bindParam(':admin', $admin);
+	  //$resultado->bindParam(':centro', $centro);
 	  $resultado->bindParam(':activo', $activo);
     $resultado->execute();
     echo json_encode("Usuario modificado.");  
